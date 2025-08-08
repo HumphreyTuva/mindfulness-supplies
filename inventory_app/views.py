@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Sum
 from django.utils.timezone import now
+from rest_framework import filters
 
 from .models import Branch, Item, Inventory, Sale
 from .serializers import BranchSerializer, ItemSerializer, InventorySerializer, SaleSerializer
@@ -26,18 +27,22 @@ class ItemViewSet(viewsets.ModelViewSet):
 class InventoryViewSet(viewsets.ModelViewSet):
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['item__name']  # you can add 'item__barcode', 'item__category' if needed
 
     def get_queryset(self):
         user = self.request.user
         branch_id = self.request.query_params.get('branch_id')
 
+        qs = super().get_queryset()
+
         if user.is_authenticated and not user.is_admin:
-            return Inventory.objects.filter(branch=user.branch)
+            qs = qs.filter(branch=user.branch)
+        elif branch_id:
+            qs = qs.filter(branch_id=branch_id)
 
-        if branch_id:
-            return Inventory.objects.filter(branch_id=branch_id)
+        return qs
 
-        return Inventory.objects.all()
 
 # Sale ViewSet with branch-level access
 class SaleViewSet(viewsets.ModelViewSet):
