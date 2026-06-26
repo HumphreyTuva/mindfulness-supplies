@@ -5,13 +5,15 @@ from .models import User, Branch, Item, Inventory, Sale
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     model = User
-    list_display = ('username', 'email', 'is_admin', 'branch', 'is_superuser', 'is_staff')
-    list_filter = ('is_admin', 'branch', 'is_superuser', 'is_staff', 'is_active')
+    list_display = ('username', 'email', 'is_admin', 'can_stock', 'branch', 'is_superuser', 'is_staff')
+    list_filter = ('is_admin', 'can_stock', 'branch', 'is_superuser', 'is_staff', 'is_active')
+
     fieldsets = BaseUserAdmin.fieldsets + (
-        (None, {'fields': ('is_admin', 'branch')}),
+        (None, {'fields': ('is_admin', 'can_stock', 'branch')}),
     )
+
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        (None, {'fields': ('is_admin', 'branch')}),
+        (None, {'fields': ('is_admin', 'can_stock', 'branch')}),
     )
 
 # Register other models if not already
